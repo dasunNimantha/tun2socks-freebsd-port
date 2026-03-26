@@ -18,24 +18,29 @@ jobs:
         with:
           release: "14.2"
           usesh: true
+          envs: "IGNORE_OSVERSION"
           prepare: |
-            pkg update -f
-            pkg upgrade -y
-            pkg install -y git go
+            export IGNORE_OSVERSION=yes
+            env IGNORE_OSVERSION=yes pkg install -y go
 
           run: |
             set -ex
+            export IGNORE_OSVERSION=yes
 
             echo "==> FreeBSD version"
             freebsd-version
             go version
-            git --version
 
-            echo "==> Fetching ports tree (Mk framework only)"
-            git clone --depth 1 --filter=blob:none --sparse \
-              https://git.FreeBSD.org/ports.git /usr/ports
-            cd /usr/ports
-            git sparse-checkout set Mk Templates Keywords
+            echo "==> Fetching ports tree Mk framework"
+            fetch -o /tmp/ports.tar.gz \
+              "https://github.com/freebsd/freebsd-ports/archive/refs/heads/main.tar.gz"
+            mkdir -p /usr/ports
+            tar xzf /tmp/ports.tar.gz -C /usr/ports \
+              --include="freebsd-ports-main/Mk/*" \
+              --include="freebsd-ports-main/Templates/*" \
+              --include="freebsd-ports-main/Keywords/*" \
+              --strip-components=1
+            rm /tmp/ports.tar.gz
 
             echo "==> Installing port files"
             mkdir -p /usr/ports/net/tun2socks
