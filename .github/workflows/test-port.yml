@@ -19,6 +19,8 @@ jobs:
           release: "14.2"
           usesh: true
           prepare: |
+            pkg update -f
+            pkg upgrade -y
             pkg install -y git go
 
           run: |
@@ -27,6 +29,7 @@ jobs:
             echo "==> FreeBSD version"
             freebsd-version
             go version
+            git --version
 
             echo "==> Fetching ports tree (Mk framework only)"
             git clone --depth 1 --filter=blob:none --sparse \
@@ -46,9 +49,9 @@ jobs:
             echo "==> Generating distinfo"
             cd /usr/ports/net/tun2socks
             make makesum
-            echo "--- distinfo ---"
+            echo "===== distinfo ====="
             cat distinfo
-            echo "--- end distinfo ---"
+            echo "===== end distinfo ====="
 
             echo "==> Building port"
             make DISABLE_VULNERABILITIES=yes
