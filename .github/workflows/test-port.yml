@@ -28,28 +28,40 @@ jobs:
             freebsd-version
             go version
 
-            echo "==> Fetching tun2socks source"
-            DISTVERSION="2.6.0"
-            fetch -o /tmp/tun2socks-v${DISTVERSION}.tar.gz \
-              "https://github.com/xjasonlyu/tun2socks/archive/refs/tags/v${DISTVERSION}.tar.gz"
+            echo "==> Fetching ports tree (Mk framework only)"
+            git clone --depth 1 --filter=blob:none --sparse \
+              https://git.FreeBSD.org/ports.git /usr/ports
+            cd /usr/ports
+            git sparse-checkout set Mk Templates Keywords
 
-            echo "==> Extracting"
-            cd /tmp
-            tar xzf tun2socks-v${DISTVERSION}.tar.gz
-            cd tun2socks-${DISTVERSION}
+            echo "==> Installing port files"
+            mkdir -p /usr/ports/net/tun2socks
+            cp /home/runner/work/tun2socks-freebsd-port/tun2socks-freebsd-port/Makefile \
+               /usr/ports/net/tun2socks/
+            cp /home/runner/work/tun2socks-freebsd-port/tun2socks-freebsd-port/pkg-descr \
+               /usr/ports/net/tun2socks/
+            cp /home/runner/work/tun2socks-freebsd-port/tun2socks-freebsd-port/pkg-plist \
+               /usr/ports/net/tun2socks/
 
-            echo "==> Building tun2socks"
-            export CGO_ENABLED=0
-            export GO111MODULE=on
-            go build -v \
-              -ldflags="-w -s -X github.com/xjasonlyu/tun2socks/v2/internal/version.Version=v${DISTVERSION}" \
-              -trimpath \
-              -o /tmp/tun2socks \
-              .
+            echo "==> Generating distinfo"
+            cd /usr/ports/net/tun2socks
+            make makesum
+            echo "--- distinfo ---"
+            cat distinfo
+            echo "--- end distinfo ---"
+
+            echo "==> Building port"
+            make DISABLE_VULNERABILITIES=yes
+
+            echo "==> Staging"
+            make stage
+
+            echo "==> Checking plist"
+            make check-plist
 
             echo "==> Verifying binary"
-            file /tmp/tun2socks
-            /tmp/tun2socks --version || true
+            ls -la work/stage/usr/local/bin/tun2socks
+            file work/stage/usr/local/bin/tun2socks
+            work/stage/usr/local/bin/tun2socks --version || true
 
             echo "==> Build successful!"
-            ls -la /tmp/tun2socks
