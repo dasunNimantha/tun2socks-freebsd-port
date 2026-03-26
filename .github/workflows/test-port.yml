@@ -45,9 +45,6 @@ jobs:
                /usr/ports/net/tun2socks/
             cp /home/runner/work/tun2socks-freebsd-port/tun2socks-freebsd-port/pkg-descr \
                /usr/ports/net/tun2socks/
-            cp /home/runner/work/tun2socks-freebsd-port/tun2socks-freebsd-port/pkg-plist \
-               /usr/ports/net/tun2socks/
-
             echo "==> Generating distinfo"
             cd /usr/ports/net/tun2socks
             make makesum
@@ -56,10 +53,7 @@ jobs:
             echo "===== end distinfo ====="
 
             echo "==> Building port"
-            make DISABLE_VULNERABILITIES=yes
-
-            echo "==> Staging"
-            make stage
+            make DISABLE_VULNERABILITIES=yes stage
 
             echo "==> Checking plist"
             make check-plist
@@ -68,5 +62,8 @@ jobs:
             ls -la work/stage/usr/local/bin/tun2socks
             file work/stage/usr/local/bin/tun2socks
             work/stage/usr/local/bin/tun2socks --version || true
+
+            echo "==> Creating package"
+            make package
 
             echo "==> Build successful!"
