@@ -1,0 +1,55 @@
+name: Test FreeBSD Port Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build on FreeBSD
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build tun2socks port on FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "14.2"
+          usesh: true
+          prepare: |
+            pkg install -y git go
+
+          run: |
+            set -ex
+
+            echo "==> FreeBSD version"
+            freebsd-version
+            go version
+
+            echo "==> Fetching tun2socks source"
+            DISTVERSION="2.6.0"
+            fetch -o /tmp/tun2socks-v${DISTVERSION}.tar.gz \
+              "https://github.com/xjasonlyu/tun2socks/archive/refs/tags/v${DISTVERSION}.tar.gz"
+
+            echo "==> Extracting"
+            cd /tmp
+            tar xzf tun2socks-v${DISTVERSION}.tar.gz
+            cd tun2socks-${DISTVERSION}
+
+            echo "==> Building tun2socks"
+            export CGO_ENABLED=0
+            export GO111MODULE=on
+            go build -v \
+              -ldflags="-w -s -X github.com/xjasonlyu/tun2socks/v2/internal/version.Version=v${DISTVERSION}" \
+              -trimpath \
+              -o /tmp/tun2socks \
+              .
+
+            echo "==> Verifying binary"
+            file /tmp/tun2socks
+            /tmp/tun2socks --version || true
+
+            echo "==> Build successful!"
+            ls -la /tmp/tun2socks
