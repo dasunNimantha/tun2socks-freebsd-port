@@ -16,16 +16,13 @@ jobs:
       - name: Build tun2socks port on FreeBSD
         uses: vmactions/freebsd-vm@v1
         with:
-          release: "14.2"
+          release: "14.3"
           usesh: true
-          envs: "IGNORE_OSVERSION"
           prepare: |
-            export IGNORE_OSVERSION=yes
-            env IGNORE_OSVERSION=yes pkg install -y go
+            pkg install -y go
 
           run: |
             set -ex
-            export IGNORE_OSVERSION=yes
 
             echo "==> FreeBSD version"
             freebsd-version
