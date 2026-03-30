@@ -67,8 +67,3 @@ jobs:
             make package
 
             echo "==> Build successful!"
-      - name: Upload patch artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: net-tun2socks-new-port-patch
-          path: net-tun2socks-new-port.patch
