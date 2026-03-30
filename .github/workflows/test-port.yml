@@ -92,7 +92,7 @@ jobs:
 
           echo "==> Insert SUBDIR += tun2socks into net/Makefile"
           # Insert in alphabetical order after tsocks, before tunneller
-          sed -i '/SUBDIR += tsocks$/a\\tSUBDIR += tun2socks' net/Makefile
+          sed -i '/SUBDIR += tsocks$/a\    SUBDIR += tun2socks' net/Makefile
 
           # Verify insertion
           grep -B1 -A1 'tun2socks' net/Makefile
