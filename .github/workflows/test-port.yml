@@ -103,14 +103,7 @@ jobs:
 
           echo "==> Stage and commit"
           git add net/tun2socks net/Makefile
-          git commit -m "net/tun2socks: add new port
-
-tun2socks creates a TUN network interface that tunnels TCP and UDP
-traffic through a SOCKS5, HTTP, Shadowsocks, or Relay proxy.  It is
-powered by gVisor's userspace TCP/IP stack and supports gateway mode
-for transparent proxying of other devices on the network.
-
-WWW: https://github.com/xjasonlyu/tun2socks"
+          git commit -m "net/tun2socks: add new port" -m "tun2socks creates a TUN network interface that tunnels TCP and UDP traffic through a SOCKS5, HTTP, Shadowsocks, or Relay proxy. It is powered by gVisor's userspace TCP/IP stack and supports gateway mode for transparent proxying of other devices on the network." -m "WWW: https://github.com/xjasonlyu/tun2socks"
 
           echo "==> Generate patch"
           git format-patch -1 HEAD -o /tmp/patch-output
