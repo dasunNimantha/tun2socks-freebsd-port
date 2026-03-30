@@ -13,36 +13,35 @@ FreeBSD port for [tun2socks](https://github.com/xjasonlyu/tun2socks) — a tool 
 
 ## Status
 
-This port is being prepared for submission to the [FreeBSD ports tree](https://cgit.freebsd.org/ports/). A CI workflow tests the build on FreeBSD 14.2 using [vmactions/freebsd-vm](https://github.com/vmactions/freebsd-vm).
+Prepared for submission to the [FreeBSD ports tree](https://cgit.freebsd.org/ports/). CI builds the port on **FreeBSD 14.3** with [vmactions/freebsd-vm](https://github.com/vmactions/freebsd-vm).
 
 ## Port Files
 
-```
-Makefile      - Build instructions
-pkg-descr     - Package description
-pkg-plist     - Installed file list
-distinfo      - Source tarball checksums (generate with `make makesum`)
-```
+| File | Purpose |
+|------|---------|
+| `Makefile` | Build instructions (`PLIST_FILES=bin/tun2socks`; no separate `pkg-plist`) |
+| `pkg-descr` | Long package description |
+| `distinfo` | Checksums for the source tarball (regenerate with `make makesum` after version bumps) |
 
 ## Testing Locally
 
 On a FreeBSD system with the ports tree:
 
 ```bash
-# Copy port files
 mkdir -p /usr/ports/net/tun2socks
-cp Makefile pkg-descr pkg-plist /usr/ports/net/tun2socks/
+cp Makefile pkg-descr distinfo /usr/ports/net/tun2socks/   # or omit distinfo and run makesum
 
-# Generate checksums
 cd /usr/ports/net/tun2socks
-make makesum
+make makesum    # if distinfo missing or version changed
 
-# Build and test
-make
-make stage
+make DISABLE_VULNERABILITIES=yes stage
 make check-plist
 make package
 ```
+
+## Releases
+
+Git tags match the **upstream** tun2socks version this port tracks (e.g. `v2.6.0`). See [GitHub Releases](https://github.com/dasunNimantha/tun2socks-freebsd-port/releases).
 
 ## Links
 
