@@ -67,3 +67,62 @@ jobs:
             make package
 
             echo "==> Build successful!"
+
+  generate-patch:
+    runs-on: ubuntu-latest
+    name: Generate submission patch
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone FreeBSD ports tree (sparse) and generate patch
+        run: |
+          set -ex
+
+          echo "==> Sparse-clone FreeBSD ports tree"
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/freebsd/freebsd-ports.git /tmp/freebsd-ports
+          cd /tmp/freebsd-ports
+          git sparse-checkout set net/Makefile
+
+          echo "==> Add port files"
+          mkdir -p net/tun2socks
+          cp "$GITHUB_WORKSPACE/Makefile"  net/tun2socks/
+          cp "$GITHUB_WORKSPACE/pkg-descr" net/tun2socks/
+          cp "$GITHUB_WORKSPACE/distinfo"  net/tun2socks/
+
+          echo "==> Insert SUBDIR += tun2socks into net/Makefile"
+          # Insert in alphabetical order after the line containing tshark
+          sed -i '/SUBDIR += tshark$/a\    SUBDIR += tun2socks' net/Makefile
+
+          # Verify insertion
+          grep -A1 'tshark' net/Makefile | head -5
+
+          echo "==> Configure git for commit"
+          git config user.name "Dasun Nimantha"
+          git config user.email "dasun4@pm.me"
+
+          echo "==> Stage and commit"
+          git add net/tun2socks net/Makefile
+          git commit -m "net/tun2socks: add new port
+
+tun2socks creates a TUN network interface that tunnels TCP and UDP
+traffic through a SOCKS5, HTTP, Shadowsocks, or Relay proxy.  It is
+powered by gVisor's userspace TCP/IP stack and supports gateway mode
+for transparent proxying of other devices on the network.
+
+WWW: https://github.com/xjasonlyu/tun2socks"
+
+          echo "==> Generate patch"
+          git format-patch -1 HEAD -o /tmp/patch-output
+
+          echo "==> Patch contents:"
+          cat /tmp/patch-output/*.patch
+
+          echo "==> Copy patch to workspace"
+          cp /tmp/patch-output/*.patch "$GITHUB_WORKSPACE/net-tun2socks-new-port.patch"
+
+      - name: Upload patch artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-tun2socks-new-port-patch
+          path: net-tun2socks-new-port.patch
