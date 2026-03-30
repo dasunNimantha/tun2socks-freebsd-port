@@ -91,11 +91,11 @@ jobs:
           cp "$GITHUB_WORKSPACE/distinfo"  net/tun2socks/
 
           echo "==> Insert SUBDIR += tun2socks into net/Makefile"
-          # Insert in alphabetical order after the line containing tshark
-          sed -i '/SUBDIR += tshark$/a\    SUBDIR += tun2socks' net/Makefile
+          # Insert in alphabetical order after tsocks, before tunneller
+          sed -i '/SUBDIR += tsocks$/a\\tSUBDIR += tun2socks' net/Makefile
 
           # Verify insertion
-          grep -A1 'tshark' net/Makefile | head -5
+          grep -B1 -A1 'tun2socks' net/Makefile
 
           echo "==> Configure git for commit"
           git config user.name "Dasun Nimantha"
