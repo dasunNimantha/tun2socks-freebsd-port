@@ -82,7 +82,7 @@ jobs:
           git clone --depth 1 --filter=blob:none --sparse \
             https://github.com/freebsd/freebsd-ports.git /tmp/freebsd-ports
           cd /tmp/freebsd-ports
-          git sparse-checkout set net/Makefile
+          git sparse-checkout set net
 
           echo "==> Add port files"
           mkdir -p net/tun2socks
